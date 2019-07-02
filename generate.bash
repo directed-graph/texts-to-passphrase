@@ -6,13 +6,13 @@ if ! (which shuf &>/dev/null); then
     shuf=gshuf
 fi
 
-set -e
+set -e -o pipefail
 
 ## input options
 # minimum number of words for each random line used; we may wish to only pick
 # words from lines that have more than a specific number of words
 min_num_words=${MIN_NUM_WORDS:-10}
-# directory containing the texts
+# paths to text files
 texts=${TEXTS:-$(dirname "$0")/texts/*}
 
 ## output options
