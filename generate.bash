@@ -2,8 +2,17 @@
 
 # macOS compatibility
 shuf=shuf
-if ! (which shuf &>/dev/null); then
+if ! (which -s shuf); then
     shuf=gshuf
+fi
+
+if ! (type get_random &>/dev/null); then
+    >&2 echo "===> using \$RANDOM as basis for get_random"
+    get_random() {
+        local upper=${1:-4294967295} # 2^32 - 1
+        local lower=${2:-0}
+        echo $(($RANDOM * ($upper - $lower + 1) / 32768 + $lower))
+    }
 fi
 
 set -e -o pipefail
@@ -33,14 +42,14 @@ while (($generated_count < $word_count)); do
     word=
     while [[ ! "$word" ]]; do
         text=$(echo $texts | tr " " "\n" | $shuf | head -n 1)
-        line=$(sed "$((($RANDOM % $(wc -l <$text)) + 1))q;d" <$text \
+        line=$(sed "$(get_random $(wc -l <$text) 1)q;d" <$text \
                | tr -cd " a-zA-Z0-9_-" \
                | sed -e 's/^[[:space:]]\{1,\}//' -e 's/[[:space:]]\{1,\}$//')
         num_words=$(echo $line | wc -w)
         if (($num_words >= $min_num_words)); then
             word=$(echo "$line" \
                    | tr -s "[:blank:]" "\n" \
-                   | sed "$((1 + ($RANDOM % $num_words)))q;d")
+                   | sed "$(get_random $num_words 1)q;d")
         fi
     done
     if (($printed >= $per_line && $per_line != 0)); then
