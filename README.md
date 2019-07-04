@@ -15,6 +15,7 @@ system. We take a set of books, or any arbitrary text. Then, we randomly select
 words from those texts (this is almost equivalent to generating a "page number",
 a "line number", and a "word number"). The selected words are then our password.
 
+
 ## Implementation
 
 We give each "book" an equal probability of being selected. Note that this is
@@ -32,4 +33,24 @@ until we have generated the number of words we want to generate.
 When getting the line we want, we can apply some filtering. For example, we may
 wish to ignore all non-alphanumeric characters. Or, we may want to avoid all
 lines that have less than a certain amount of words.
+
+
+## Custom Random Number Generator
+
+You may use a custom random number generator to increase security. By default,
+we will use the `bash` built-in `$RANDOM` as a basis to generate the number. If
+you want to use a custom generator, export `get_random` as a function or a
+program. The `get_random` must take two arguments:
+
+1. the `upper` bound of the randomly generated number
+2. the `lower` bound of the randomly generated number
+
+Without exporting `get_random`, we will do the equivalent of the following,
+based on [this](https://stackoverflow.com/a/49216005) answer:
+
+    get_random() {
+        local upper=${1:-4294967295} # 2^32 - 1
+        local lower=${2:-0}
+        echo $(($RANDOM * ($upper - $lower + 1) / 32768 + $lower))
+    }
 
