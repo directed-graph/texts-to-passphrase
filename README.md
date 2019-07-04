@@ -23,12 +23,12 @@ different from giving each word an equal probability. This is intentional, as
 the probability of each "page", "line", and "word" will vary significantly
 depending on which "books" you choose. We want to take advantage of that fact.
 
-The main inputs are the text files (or "books") and the nubmer of words to
+The main inputs are the text files (or "books") and the number of words to
 generate. We will select a random "book", and from that random "book", we will
 select a line number in that book (here the line number will account for both
 the "page number" and the "line number" in the book anology). Then, we will
-select a word number in that line to be our word for this book. This will repeat
-until we have generated the number of words we want to generate.
+select a word number in that line to be our word for this book. This will
+repeat until we have generated the number of words we want to generate.
 
 When getting the line we want, we can apply some filtering. For example, we may
 wish to ignore all non-alphanumeric characters. Or, we may want to avoid all
@@ -53,4 +53,21 @@ based on [this](https://stackoverflow.com/a/49216005) answer:
         local lower=${2:-0}
         echo $(($RANDOM * ($upper - $lower + 1) / 32768 + $lower))
     }
+
+
+## Dependencies
+
+The programs we need include the following:
+
+- `bash`
+- `dirname`
+- `mktemp`
+- `sed`
+- `shuf`
+- `tr`
+- `wc`
+
+On Linux and WSL, these should all be installed by default. On MacOS, you need
+to install `coreutils` to get `shuf`. It will be installed as `gshuf`, but
+`generate.bash` will automatically find it.
 
