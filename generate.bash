@@ -2,7 +2,7 @@
 
 # macOS compatibility
 shuf=shuf
-if ! (which -s shuf); then
+if ! (which shuf &>/dev/null); then
     shuf=gshuf
 fi
 
