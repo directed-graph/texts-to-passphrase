@@ -23,8 +23,8 @@ set -e -o pipefail
 min_num_words=${MIN_NUM_WORDS:-10}
 # paths to text files
 texts="$@"
-if [[ ! "$texts" ]]; then
-    texts=${TEXTS:-$(dirname "$0")/texts/*}
+if [[ ! "$texts" || "${INCLUDE_TEXTS_VARIABLE:-yes}" == "yes" ]]; then
+    texts+=" ${TEXTS:-$(dirname "$0")/texts/*}"
 fi
 
 ## output options
