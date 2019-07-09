@@ -22,7 +22,10 @@ set -e -o pipefail
 # words from lines that have more than a specific number of words
 min_num_words=${MIN_NUM_WORDS:-10}
 # paths to text files
-texts=${TEXTS:-$(dirname "$0")/texts/*}
+texts="$@"
+if [[ ! "$texts" ]]; then
+    texts=${TEXTS:-$(dirname "$0")/texts/*}
+fi
 
 ## output options
 # number of words to generate
