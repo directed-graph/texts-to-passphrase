@@ -22,9 +22,21 @@ set -e -o pipefail
 # words from lines that have more than a specific number of words
 min_num_words=${MIN_NUM_WORDS:-10}
 # paths to text files
-texts="$@"
-if [[ ! "$texts" || "${INCLUDE_TEXTS_VARIABLE:-yes}" == "yes" ]]; then
-    texts+=" ${TEXTS:-$(dirname "$0")/texts/*}"
+texts=( "$@" )
+if [[ "${INCLUDE_TEXTS_VARIABLE:-yes}" == "yes" ]]; then
+    shopt -s nullglob
+    for text in ${TEXTS:-$(dirname "$0")/texts/*}; do
+        if [[ -f "$text" ]]; then
+            texts+=( "$text" )
+        else
+            >&2 echo "===> WARNING: ignoring non-text file: $text"
+        fi
+    done
+    shopt -u nullglob
+fi
+if ((${#texts[@]} == 0)); then
+    >&2 echo "===> no texts provided"
+    exit 1
 fi
 
 ## output options
@@ -44,7 +56,7 @@ printed=0
 while (($generated_count < $word_count)); do
     word=
     while [[ ! "$word" ]]; do
-        text=$(echo $texts | tr " " "\n" | $shuf | head -n 1)
+        text=$(echo "${texts[@]}" | tr " " "\n" | $shuf | head -n 1)
         line=$(sed "$(get_random $(wc -l <$text) 1)q;d" <$text \
                | tr -cd " a-zA-Z0-9_-" \
                | sed -e 's/^[[:space:]]\{1,\}//' -e 's/[[:space:]]\{1,\}$//')
