@@ -2,8 +2,10 @@
 
 set -x
 
-export WORD_COUNT=32
 export TEXTS=test-texts/*
+export VERBOSE=yes
+export WORD_COUNT=32
+
 files=(
     LICENSE
     README.md
