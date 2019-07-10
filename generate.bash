@@ -7,7 +7,9 @@ if ! (which shuf &>/dev/null); then
 fi
 
 if ! (type get_random &>/dev/null); then
-    >&2 echo "===> using \$RANDOM as basis for get_random"
+    if [[ "$WARNING" != "no" ]]; then
+        >&2 echo "===> WARNING: using \$RANDOM as basis for get_random"
+    fi
     get_random() {
         local upper=${1:-4294967295} # 2^32 - 1
         local lower=${2:-0}
@@ -21,6 +23,7 @@ set -e -o pipefail
 # minimum number of words for each random line used; we may wish to only pick
 # words from lines that have more than a specific number of words
 min_num_words=${MIN_NUM_WORDS:-10}
+
 # paths to text files
 texts=( "$@" )
 if [[ "${INCLUDE_TEXTS_VARIABLE:-yes}" == "yes" ]]; then
@@ -29,14 +32,24 @@ if [[ "${INCLUDE_TEXTS_VARIABLE:-yes}" == "yes" ]]; then
         if [[ -f "$text" ]]; then
             texts+=( "$text" )
         else
-            >&2 echo "===> WARNING: ignoring non-text file: $text"
+            if [[ "$WARNING" != "no" ]]; then
+                >&2 echo "===> WARNING: ignoring non-text file: $text"
+            fi
         fi
     done
     shopt -u nullglob
 fi
+
 if ((${#texts[@]} == 0)); then
-    >&2 echo "===> no texts provided"
+    >&2 echo "===> ERROR: no texts provided"
     exit 1
+fi
+
+if [[ "${VERBOSE:-$INFO}" == "yes" ]]; then
+    >&2 echo "===> INFO: using ${#texts[@]} files:"
+    for text in "${texts[@]}"; do
+        >&2 echo "===> INFO:     - $text"
+    done
 fi
 
 ## output options
@@ -53,6 +66,7 @@ temp=${TEMP_FILE:-$(mktemp)}
 
 generated_count=0
 printed=0
+skipped=0
 while (($generated_count < $word_count)); do
     word=
     while [[ ! "$word" ]]; do
@@ -65,6 +79,8 @@ while (($generated_count < $word_count)); do
             word=$(echo "$line" \
                    | tr -s "[:blank:]" "\n" \
                    | sed "$(get_random $num_words 1)q;d")
+        else
+            skipped=$(($skipped + 1))
         fi
     done
     if (($printed >= $per_line && $per_line != 0)); then
@@ -79,4 +95,8 @@ while (($generated_count < $word_count)); do
     generated_count=$(($generated_count + 1))
 done
 echo
+
+if [[ "${VERBOSE:-$INFO}" == "yes" ]]; then
+    >&2 echo "===> INFO: repeated $skipped times due to line length"
+fi
 
