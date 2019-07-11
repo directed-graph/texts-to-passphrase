@@ -16,6 +16,25 @@ words from those texts (this is almost equivalent to generating a "page number",
 a "line number", and a "word number"). The selected words are then our password.
 
 
+## Usage
+
+A quick way to make sure this repository works is to run the `test.bash`. The
+general usage syntax of the program itself is as follows:
+
+    ./generate.bash [ text_file ... ]
+
+By default, we will look for text files stored under `texts/` as the text files
+to use as our "books". You may set the environment variable `TEXTS` to change
+the location. Text files passed as arguments to the script are also used. To
+ignore the `TEXTS` variable in any case, set `INCLUDE_TEXTS_VARIABLE=no`.
+
+By default, we will generate 64 words, and up to 10 words per line. Set
+`WORD_COUNT` and `PER_LINE` to change these. You may set `VERBOSE` (or `INFO`)
+and `WARNING` to `yes` to have related messages be written to `stderr`. Also,
+you may [export](#custom-random-number-generator) `get_random` to use a custom
+random number generator.
+
+
 ## Implementation
 
 We give each "book" an equal probability of being selected. Note that this is
